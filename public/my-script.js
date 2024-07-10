@@ -66,8 +66,15 @@ class Player {
 
 class Scene {
   constructor(ctx, srpite) {
+    this.x = 0;
+    this.y = 370;
     this.ctx = ctx;
-    this.sprite = sprite;
+    this.sprite = srpite;
+    this.speed = 2; // Speed of ground movement
+    this.segments = [
+      { x: 0, pos: Math.floor(Math.random() * 1500) },
+      { x: 900, pos: Math.floor(Math.random() * 1500) }
+    ];
   }
 
   drawBackground() {
@@ -75,34 +82,43 @@ class Scene {
     this.ctx.fillRect(0, 0, 800, 400);
   }
 
-  drawLine(ctx) {
-    const lineWidth = 800;
-    const lineHeight = 20;
-    const lineX = 0;
+  drawLine() {
+    const lineWidth = 900;
+    const lineHeight = 25;
     const lineY = 370;
 
-    ctx.drawImage(
-      this.sprite,
-      0,
-      110,
-      lineWidth,
-      lineHeight,
-      lineX,
-      lineY,
-      lineWidth,
-      lineHeight
-    );
+    for (const segment of this.segments) {
+      this.ctx.drawImage(
+        this.sprite, segment.pos, 102, lineWidth, lineHeight, segment.x, lineY, lineWidth, lineHeight
+      );
+    }
+  }
+
+  // move ground to the left with a certain speed
+  moveGround() {
+    for (const segment of this.segments) {
+      segment.x -= this.speed;
+      if (segment.x <= -900) {
+        segment.x = 900;
+        segment.pos = Math.floor(Math.random() * 1600); // Generate a new random portion of the sprite
+      }
+    }
+  }
+
+  clear() {
+    this.ctx.clearRect(0, 0, 800, 400);
   }
 }
 
 sprite.onload = () => {
   // Initialize canvas
+  const container = document.getElementById("container");
   const canvas = document.createElement("canvas");
 
   canvas.width = 800;
   canvas.height = 400;
 
-  document.body.appendChild(canvas);
+  container.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
 
@@ -111,24 +127,27 @@ sprite.onload = () => {
   }
 
   // Create player
-  const player = new Player(25, 276, sprite);
+  const player = new Player(25, 286, sprite);
 
   // Create scene
-  const scene = new Scene(ctx);
+  let scene = new Scene(ctx, sprite);
 
-  // Draw background
-  scene.drawBackground();
-  scene.drawLine(ctx);
+  function gameLoop() {
+    scene.clear();
+    scene.drawBackground();
+    scene.drawLine();
+    scene.moveGround();
+    // player.update();
+    // player.move(ctx);
+    requestAnimationFrame(gameLoop);
+  }
 
-  // Draw player
-  player.draw(ctx);
+  gameLoop();
 
-  // Handle keydown event
-  // document.addEventListener("keydown", (e) => {
-  //   switch (e.key) {
-  //     case "ArrowUp":
-  //       player.move(ctx, player.x, player.y - 10);
-  //       break;
-  //   }
-  // })
+  // Listen for key presses
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" || e.key === " ") {
+      player.jump();
+    }
+  });
 }
