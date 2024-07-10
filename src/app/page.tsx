@@ -3,7 +3,9 @@ import Script from "next/script";
 const Home = () => {
   return (
     <main>
-      <Script src="/my-script.js" />
+      <div id="container" className="rounded-xl overflow-hidden">
+        <Script src="/my-script.js" />
+      </div>
     </main>
   );
 }
