@@ -22,15 +22,8 @@ class Player {
     const spriteY = 0;
 
     ctx.drawImage(
-      this.sprite,
-      spriteX,
-      spriteY,
-      this.spriteWidth,
-      this.spriteHeight,
-      this.x,
-      this.y,
-      this.spriteWidth,
-      this.spriteHeight
+      this.sprite, spriteX, spriteY, this.spriteWidth, this.spriteHeight, this.x,
+      this.y, this.spriteWidth, this.spriteHeight
     );
   }
 
