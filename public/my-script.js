@@ -11,6 +11,10 @@ class Player {
     this.spriteHeight = 100;
     this.spriteBeginX = 1514;
     this.spriteLastX = 1602;
+    this.jumpSpeed = 0;
+    this.gravity = 0.5;
+    this.isJumping = false;
+    this.frame = 0;
   }
 
   drawInitial(ctx) {
@@ -31,36 +35,50 @@ class Player {
   }
 
   draw(ctx) {
-    const spriteX = 1602;
-    const spriteY = 0;
+    ctx.drawImage(
+      this.sprite, this.spriteBeginX, 0, this.spriteWidth, this.spriteHeight,
+      this.x, this.y, this.spriteWidth, this.spriteHeight
+    );
+  }
+
+  move(ctx) {
+    this.clean(ctx);
+
+    let whichStep = this.frame % 2 === 0 ? this.spriteBeginX : this.spriteLastX;
 
     ctx.drawImage(
-      this.sprite,
-      spriteX,
-      spriteY,
-      this.spriteWidth,
-      this.spriteHeight,
-      this.x,
-      this.y,
-      this.spriteWidth,
-      this.spriteHeight
+      this.sprite, whichStep, 0, this.spriteWidth, this.spriteHeight,
+      this.x, this.y, this.spriteWidth, this.spriteHeight
     );
+
+    this.frame++;
   }
 
   clean(ctx) {
     ctx.clearRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#f5f5f5";
     ctx.fillRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
   }
 
-  move(ctx, x, y) {
-    this.clean(ctx);
+  jump() {
+    if (!this.isJumping) {
+      this.isJumping = true;
+      this.jumpSpeed = -15;
+    }
+  }
 
-    this.x = x;
-    this.y = y;
+  update() {
+    if (this.isJumping) {
+      this.y += this.jumpSpeed;
+      this.jumpSpeed += this.gravity;
 
-    this.draw(ctx);
+      if (this.y >= 286) { // Ground level
+        this.y = 286;
+        this.isJumping = false;
+        this.jumpSpeed = 0;
+      }
+    }
   }
 }
 
