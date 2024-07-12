@@ -1,0 +1,13 @@
+services:
+  internet_lost:
+    image: doctorpok/whatsup:internet_lost
+    container_name: internet_lost
+    restart: always
+    ports:
+      - "6550:6550"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge

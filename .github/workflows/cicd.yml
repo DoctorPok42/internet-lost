@@ -1,0 +1,78 @@
+name: CI/CD Pipeline
+run-name: ${{ github.actor }}'s CI/CD Pipeline'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches-ignore:
+      - "ga-ignore-"
+
+jobs:
+  build:
+    name: 🛠️ Build
+    runs-on: self-hosted
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v1
+
+      - run: |
+          docker build -t internet_lost:latest .
+
+
+  build_docker_images:
+    name: 🛠️ Build Docker images
+    runs-on: self-hosted
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v1
+
+      - run: |
+          docker build -t internet_lost:latest .
+
+  push_docker_images:
+    name: 📡 Push Docker images to Docker Hub
+    runs-on: self-hosted
+    needs: build_docker_images
+    if: github.event_name == 'push'
+
+    steps:
+      - run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker tag internet_lost:latest ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
+          docker push ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
+
+  deploy:
+    name: 🚀 Deploy to VPS
+    runs-on: self-hosted
+    needs: push_docker_images
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ secrets.VPS_PROJECT_PATH }}
+            sudo cp -f docker-compose.yml ./
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
+            sudo docker compose -f docker-compose.yml up -d --force-recreate
