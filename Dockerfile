@@ -11,7 +11,6 @@ RUN npx pnpm install
 
 COPY src/ ./src/
 COPY public ./public/
-COPY components ./components/
 COPY tsconfig.json .
 COPY next.config.mjs .
 
