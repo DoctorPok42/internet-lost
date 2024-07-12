@@ -1,7 +1,5 @@
 FROM node:alpine
 
-ENV NODE_ENV=production
-
 WORKDIR /app
 
 COPY pnpm-lock.yaml ./
