@@ -15,6 +15,8 @@ class Player {
     this.gravity = 0.5;
     this.isJumping = false;
     this.frame = 0;
+    this.frameCount = 0; // Counter for controlling animation speed
+    this.frameRate = 10; // Change frame every 5 ticks
   }
 
   drawInitial(ctx) {
@@ -32,19 +34,26 @@ class Player {
       this.sprite, this.spriteBeginX, 0, this.spriteWidth, this.spriteHeight,
       this.x, this.y, this.spriteWidth, this.spriteHeight
     );
+
+    ctx.fillStyle = "#f5f5f5";
+    ctx.fillRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
   }
 
   move(ctx) {
     this.clean(ctx);
 
-    let whichStep = this.frame % 2 === 0 ? this.spriteBeginX : this.spriteLastX;
+    if (this.frameCount % this.frameRate === 0) {
+      this.frame = (this.frame + 1) % 2;
+    }
+
+    let whichStep = this.frame === 0 ? this.spriteBeginX : this.spriteLastX;
 
     ctx.drawImage(
       this.sprite, whichStep, 0, this.spriteWidth, this.spriteHeight,
       this.x, this.y, this.spriteWidth, this.spriteHeight
     );
 
-    this.frame++;
+    this.frameCount++;
   }
 
   clean(ctx) {
@@ -137,27 +146,27 @@ sprite.onload = () => {
     throw new Error("Could not get 2d context from canvas.");
   }
 
+  let time = 800;
+  let over = false;
+
   // Create player
   const player = new Player(25, 286, sprite);
 
   // Create scene
   let scene = new Scene(ctx, sprite);
 
-  function gameLoop() {
+  setInterval(() => {
     scene.clear();
     scene.drawBackground();
+    player.update();
+    player.move(ctx);
     scene.drawLine();
     scene.moveGround();
-    // player.update();
-    // player.move(ctx);
-    requestAnimationFrame(gameLoop);
-  }
-
-  gameLoop();
+  }, 800 / 60);
 
   // Listen for key presses
   window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key === " ") {
+    if (e.key === "ArrowUp" || e.key === " " || e.key === "Touch") {
       player.jump();
     }
   });
