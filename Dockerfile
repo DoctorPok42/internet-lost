@@ -11,7 +11,7 @@ COPY src/ ./src/
 COPY public ./public/
 COPY tsconfig.json .
 COPY next.config.mjs .
-COPY tailwind.config.js .
+COPY tailwind.config.ts .
 
 RUN npx pnpm build
 
