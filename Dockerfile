@@ -5,7 +5,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 COPY pnpm-lock.yaml ./
-COPY package.json ./
+COPY package*.json ./
 
 RUN npx pnpm install
 
