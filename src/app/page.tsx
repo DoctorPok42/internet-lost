@@ -5,11 +5,7 @@ const Home = () => {
     <main>
       <div
         id="container"
-        style={{
-          borderRadius: "1rem",
-          overflow: "hidden",
-        }}
-      >
+        className="rounded-xl overflow-hidden">
         <Script src="/my-script.js" />
       </div>
     </main>

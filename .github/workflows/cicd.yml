@@ -64,6 +64,4 @@ jobs:
           script: |
             cd ${{ secrets.VPS_PROJECT_PATH }}
             sudo cp -f docker-compose.yml ./
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
-            sudo docker compose -f docker-compose.yml up -d
-            sudo docker container restart internet_lost
+            sudo docker compose up -d --force-recreate
