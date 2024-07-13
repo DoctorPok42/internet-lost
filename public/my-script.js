@@ -259,12 +259,12 @@ sprite.onload = () => {
       obstacle.update();
       obstacle.draw(ctx);
 
-      // if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
-      //   over = true;
-      //   alert("Game Over!");
-      //   window.location.reload();
-      //   obstacles = [];
-      // }
+      if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
+        over = true;
+        alert("Game Over!");
+        window.location.reload();
+        obstacles = [];
+      }
 
       if (obstacle.x < -obstacle.spriteWidth) {
         obstacles.splice(index, 1);
@@ -274,7 +274,9 @@ sprite.onload = () => {
   }, 800 / 60);
 
   // Generate obstacles periodically
-  setInterval(generateObstacle, Math.floor(Math.random() * 2000) + 1000);
+  window.addEventListener("load", () => {
+    setInterval(generateObstacle, Math.floor(Math.random() * 2000) + 1000);
+  });
 
   // Listen for key presses
   window.addEventListener("keydown", (e) => {
