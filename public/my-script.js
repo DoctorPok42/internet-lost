@@ -8,12 +8,13 @@ class Player {
     this.y = y;
     this.sprite = sprite;
     this.spriteWidth = 88;
-    this.spriteHeight = 100;
+    this.spriteHeight = 92;
     this.spriteBeginX = 1514;
     this.spriteLastX = 1602;
     this.jumpSpeed = 0;
     this.gravity = 0.5;
     this.isJumping = false;
+    this.isDucking = false;
     this.frame = 0;
   }
 
@@ -27,11 +28,11 @@ class Player {
     );
   }
 
-  draw(ctx) {
-    ctx.drawImage(
-      this.sprite, this.spriteBeginX, 0, this.spriteWidth, this.spriteHeight,
-      this.x, this.y, this.spriteWidth, this.spriteHeight
-    );
+  clean(ctx) {
+    ctx.clearRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
+
+    ctx.fillStyle = "#f5f5f5";
+    ctx.fillRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
   }
 
   move(ctx) {
@@ -41,17 +42,16 @@ class Player {
 
     ctx.drawImage(
       this.sprite, whichStep, 0, this.spriteWidth, this.spriteHeight,
-      this.x, this.y, this.spriteWidth, this.spriteHeight
+      this.x,
+      this.isDucking ? this.y - 38 : this.y
+      , this.spriteWidth, this.spriteHeight
     );
 
-    this.frame++;
-  }
+    this.frameCount++;
 
-  clean(ctx) {
-    ctx.clearRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
-
-    ctx.fillStyle = "#f5f5f5";
-    ctx.fillRect(this.x, this.y, this.spriteWidth, this.spriteHeight);
+    if (this.frameCount > 1000) {
+      this.frameCount = 0;
+    }
   }
 
   jump() {
@@ -66,12 +66,94 @@ class Player {
       this.y += this.jumpSpeed;
       this.jumpSpeed += this.gravity;
 
-      if (this.y >= 286) { // Ground level
-        this.y = 286;
+      if (this.y >= 288) { // Ground level
+        this.y = 288;
         this.isJumping = false;
         this.jumpSpeed = 0;
       }
     }
+  }
+
+  duck() {
+    if (this.isJumping) return;
+
+    this.isDucking = true;
+
+    this.y = 326;
+    this.spriteWidth = 120;
+    this.spriteHeight = 92;
+    this.spriteBeginX = 1862;
+    this.spriteLastX = 1980;
+  }
+
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.spriteWidth,
+      height: this.spriteHeight
+    };
+  }
+}
+
+class Obstacle {
+  constructor(x, y, sprite, type) {
+    this.x = x;
+    this.y = y;
+    this.sprite = sprite;
+    this.type = type;
+    this.frame = 0;
+    this.frameCount = 0; // Counter for controlling animation speed
+    this.frameRate = 20; // Change frame every 5 ticks
+
+    if (type === 'cactusSmall') {
+      this.spriteWidth = 38;
+      this.spriteHeight = 70;
+      this.spriteX = 440;
+      this.spriteY = 1;
+    } else if (type === 'cactusLarge') {
+      this.spriteWidth = 47;
+      this.spriteHeight = 100;
+      this.spriteX = 653;
+      this.spriteY = 2;
+    } else {
+      this.spriteWidth = 84;
+      this.spriteHeight = 80;
+      this.spriteX = 264;
+      this.spriteY = 2;
+    }
+
+    this.speed = 2;
+  }
+
+  draw(ctx) {
+    ctx.drawImage(
+      this.sprite, this.spriteX, this.spriteY, this.spriteWidth, this.spriteHeight,
+      this.x, this.y, this.spriteWidth, this.spriteHeight
+    );
+  }
+
+  update() {
+    this.x -= this.speed;
+
+    if (this.type === 'bird') {
+      if (this.frameCount % this.frameRate === 0) {
+        this.frame = (this.frame + 1) % 2;
+      }
+
+      this.spriteX = this.frame === 0 ? 264 : 356;
+
+      this.frameCount++;
+    }
+  }
+
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.spriteWidth,
+      height: this.spriteHeight
+    };
   }
 }
 
@@ -159,6 +241,21 @@ sprite.onload = () => {
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" || e.key === " ") {
       player.jump();
+    }
+
+    if (e.key === "ArrowDown") {
+      player.duck();
+    }
+  });
+
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowDown") {
+      player.isDucking = false;
+      player.y = 288;
+      player.spriteWidth = 88;
+      player.spriteHeight = 92;
+      player.spriteBeginX = 1514;
+      player.spriteLastX = 1602;
     }
   });
 }
