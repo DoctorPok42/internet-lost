@@ -16,6 +16,8 @@ class Player {
     this.isJumping = false;
     this.isDucking = false;
     this.frame = 0;
+    this.frameCount = 0; // Counter for controlling animation speed
+    this.frameRate = 10; // Change frame every 5 ticks
   }
 
   drawInitial(ctx) {
@@ -38,7 +40,11 @@ class Player {
   move(ctx) {
     this.clean(ctx);
 
-    let whichStep = this.frame % 2 === 0 ? this.spriteBeginX : this.spriteLastX;
+    if (this.frameCount % this.frameRate === 0) {
+      this.frame = (this.frame + 1) % 2;
+    }
+
+    let whichStep = this.frame === 0 ? this.spriteBeginX : this.spriteLastX;
 
     ctx.drawImage(
       this.sprite, whichStep, 0, this.spriteWidth, this.spriteHeight,
@@ -203,43 +209,87 @@ class Scene {
   }
 }
 
+// Collision detection function
+function isColliding(rect1, rect2) {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
+}
+
 sprite.onload = () => {
   // Initialize canvas
   const container = document.getElementById("container");
   const canvas = document.createElement("canvas");
-
   canvas.width = 800;
   canvas.height = 400;
-
   container.appendChild(canvas);
-
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
     throw new Error("Could not get 2d context from canvas.");
   }
 
+  let time = 800;
+  let over = false;
+
   // Create player
-  const player = new Player(25, 286, sprite);
+  const player = new Player(25, 288, sprite);
 
   // Create scene
   let scene = new Scene(ctx, sprite);
 
-  function gameLoop() {
-    scene.clear();
-    scene.drawBackground();
-    scene.drawLine();
-    scene.moveGround();
-    // player.update();
-    // player.move(ctx);
-    requestAnimationFrame(gameLoop);
+  // Create obstacles
+  let obstacles = [];
+
+  function generateObstacle() {
+    const obstacleTypes = {
+      "cactusSmall": 311,
+      "cactusLarge": 287,
+      "bird": 230
+    }
+    const obstacleType = Object.keys(obstacleTypes)[Math.floor(Math.random() * Object.keys(obstacleTypes).length)];
+
+    let obstacleY = obstacleTypes[obstacleType];
+
+    obstacles.push(new Obstacle(800, obstacleY, sprite, obstacleType));
   }
 
-  gameLoop();
+  setInterval(() => {
+    scene.clear();
+    scene.drawBackground();
+    player.update();
+    player.move(ctx);
+    scene.moveGround();
+
+    obstacles.forEach((obstacle, index) => {
+      obstacle.update();
+      obstacle.draw(ctx);
+
+      if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
+        over = true;
+        alert("Game Over!");
+        window.location.reload();
+        obstacles = [];
+      }
+
+      if (obstacle.x < -obstacle.spriteWidth) {
+        obstacles.splice(index, 1);
+      }
+    });
+    scene.drawLine();
+  }, 800 / 60);
+
+  // Generate obstacles periodically
+  window.addEventListener("load", () => {
+    setInterval(generateObstacle, Math.floor(Math.random() * 2000) + 1000);
+  });
 
   // Listen for key presses
   window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key === " ") {
+    if (e.key === "ArrowUp" || e.key === " " || e.key === "Touch") {
       player.jump();
     }
 
