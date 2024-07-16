@@ -78,7 +78,7 @@ sprite.onload = () => {
 
   // Listen for key presses
   window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key === " " || e.key === "Touch") {
+    if (e.key === "ArrowUp" || e.key === " ") {
       player.jump();
       container.style.transform = "translateY(-1px)";
     }
@@ -98,5 +98,10 @@ sprite.onload = () => {
       player.spriteBeginX = 1514;
       player.spriteLastX = 1602;
     }
+  });
+
+  window.addEventListener("touchstart", (e) => {
+    player.jump();
+    container.style.transform = "translateY(-1px)";
   });
 }
