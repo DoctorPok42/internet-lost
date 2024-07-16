@@ -12,7 +12,7 @@ class Player {
     this.spriteBeginX = 1514;
     this.spriteLastX = 1602;
     this.jumpSpeed = 0;
-    this.gravity = 0.5;
+    this.gravity = 0.4;
     this.isJumping = false;
     this.isDucking = false;
     this.frame = 0;
@@ -63,14 +63,21 @@ class Player {
   jump() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.jumpSpeed = -15;
+      this.jumpSpeed = -17;
     }
   }
 
-  update() {
+  update(container) {
     if (this.isJumping) {
+      if (this.isDucking) {
+        this.jumpSpeed += (this.gravity + 0.05);
+      } else {
+        this.jumpSpeed += this.gravity;
+      }
+
       this.y += this.jumpSpeed;
-      this.jumpSpeed += this.gravity;
+
+      container.style.transform = `translateY(${this.y - 288}px)`;
 
       if (this.y >= 288) { // Ground level
         this.y = 288;
@@ -82,8 +89,6 @@ class Player {
 
   duck() {
     if (this.isJumping) return;
-
-    this.isDucking = true;
 
     this.y = 326;
     this.spriteWidth = 120;
@@ -232,9 +237,6 @@ sprite.onload = () => {
     throw new Error("Could not get 2d context from canvas.");
   }
 
-  let time = 800;
-  let over = false;
-
   // Create player
   const player = new Player(25, 288, sprite);
 
@@ -260,7 +262,7 @@ sprite.onload = () => {
   setInterval(() => {
     scene.clear();
     scene.drawBackground();
-    player.update();
+    player.update(container);
     player.move(ctx);
     scene.moveGround();
 
@@ -269,7 +271,7 @@ sprite.onload = () => {
       obstacle.draw(ctx);
 
       if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
-        over = true;
+        container.style.transform = "translateY(0) !important";
         alert("Game Over!");
         window.location.reload();
         obstacles = [];
@@ -280,7 +282,7 @@ sprite.onload = () => {
       }
     });
     scene.drawLine();
-  }, 800 / 60);
+  }, 400 / 60);
 
   // Generate obstacles periodically
   window.addEventListener("load", () => {
@@ -291,9 +293,11 @@ sprite.onload = () => {
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" || e.key === " " || e.key === "Touch") {
       player.jump();
+      container.style.transform = "translateY(-1px)";
     }
 
     if (e.key === "ArrowDown") {
+      player.isDucking = true;
       player.duck();
     }
   });
