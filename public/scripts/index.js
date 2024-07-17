@@ -11,6 +11,16 @@ function isColliding(rect1, rect2) {
   );
 }
 
+let isPaused = false;
+
+function pauseGame(duration, callback) {
+  isPaused = true;
+  setTimeout(() => {
+    isPaused = false;
+    if (callback) callback();
+  }, duration);
+}
+
 sprite.onload = () => {
   // Initialize canvas
   const container = document.getElementById("container");
@@ -46,22 +56,47 @@ sprite.onload = () => {
     obstacles.push(new Obstacle(800, obstacleY, sprite, obstacleType));
   }
 
+  let gameOff = false;
+
   setInterval(() => {
+    if (isPaused) return;
+
     scene.clear();
     scene.drawBackground();
-    player.update(container);
-    player.move(ctx);
+    if (gameOff) {
+      // Display game over message
+      ctx.drawImage(
+        sprite, 950, 25, 390, 70, 220, 150, 350, 70
+      );
+      player.x = 340;
+      player.y = 240;
+      player.drawInitial(ctx);
+
+      // Display restart message
+      ctx.textAlign = "center";
+      ctx.font = "italic 18px Arial";
+      ctx.fillStyle = "#535353";
+      ctx.fillText("Press any key to restart!", 400, 220);
+
+
+    } else {
+      player.update();
+      player.move(ctx);
+    }
     scene.moveGround();
 
     obstacles.forEach((obstacle, index) => {
-      obstacle.update();
-      obstacle.draw(ctx);
+      if (!gameOff) {
+        // Update and draw obstacles
+        obstacle.update();
+        obstacle.draw(ctx);
+      }
 
       if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
-        container.style.transform = "translateY(0) !important";
-        alert("Game Over!");
-        window.location.reload();
-        obstacles = [];
+        // sleep for 100ms before pausing the game
+        pauseGame(100, () => {
+          gameOff = true;
+        });
       }
 
       if (obstacle.x < -obstacle.spriteWidth) {
@@ -80,12 +115,26 @@ sprite.onload = () => {
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" || e.key === " ") {
       player.jump();
-      container.style.transform = "translateY(-1px)";
     }
 
     if (e.key === "ArrowDown") {
       player.isDucking = true;
       player.duck();
+    }
+
+    if (gameOff) {
+      // Reset game
+      gameOff = false;
+
+      player.x = 25;
+      player.y = 288;
+      player.isJumping = false;
+      player.isDucking = false;
+      player.spriteWidth = 88;
+      player.spriteBeginX = 1514;
+      player.spriteLastX = 1602;
+
+      obstacles = [];
     }
   });
 
@@ -94,7 +143,6 @@ sprite.onload = () => {
       player.isDucking = false;
       player.y = 288;
       player.spriteWidth = 88;
-      player.spriteHeight = 92;
       player.spriteBeginX = 1514;
       player.spriteLastX = 1602;
     }
@@ -102,6 +150,5 @@ sprite.onload = () => {
 
   window.addEventListener("touchstart", (e) => {
     player.jump();
-    container.style.transform = "translateY(-1px)";
   });
 }

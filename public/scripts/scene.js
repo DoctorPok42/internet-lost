@@ -34,7 +34,7 @@ class Scene {
       segment.x -= this.speed;
       if (segment.x <= -900) {
         segment.x = 900;
-        segment.pos = Math.floor(Math.random() * 1600); // Generate a new random portion of the sprite
+        segment.pos = Math.floor(Math.random() * 1500); // Generate a new random portion of the sprite
       }
     }
   }

@@ -14,7 +14,7 @@ class Player {
     this.isDucking = false;
     this.frame = 0;
     this.frameCount = 0; // Counter for controlling animation speed
-    this.frameRate = 10; // Change frame every 5 ticks
+    this.frameRate = 20; // Change frame every 5 ticks
   }
 
   drawInitial(ctx) {
@@ -64,7 +64,7 @@ class Player {
     }
   }
 
-  update(container) {
+  update() {
     if (this.isJumping) {
       if (this.isDucking) {
         this.jumpSpeed += (this.gravity + 0.05);
@@ -74,13 +74,10 @@ class Player {
 
       this.y += this.jumpSpeed;
 
-      container.style.transform = `translateY(${this.y - 288}px)`;
-
       if (this.y >= 288) { // Ground level
         this.y = 288;
         this.isJumping = false;
         this.jumpSpeed = 0;
-        container.style.transform = "translateY(0)";
       }
     }
   }
@@ -90,7 +87,6 @@ class Player {
 
     this.y = 326;
     this.spriteWidth = 120;
-    this.spriteHeight = 92;
     this.spriteBeginX = 1862;
     this.spriteLastX = 1980;
   }
