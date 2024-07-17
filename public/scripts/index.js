@@ -71,6 +71,14 @@ sprite.onload = () => {
       player.x = 340;
       player.y = 240;
       player.drawInitial(ctx);
+
+      // Display restart message
+      ctx.textAlign = "center";
+      ctx.font = "italic 18px Arial";
+      ctx.fillStyle = "#535353";
+      ctx.fillText("Press any key to restart!", 400, 220);
+
+
     } else {
       player.update();
       player.move(ctx);
@@ -114,7 +122,7 @@ sprite.onload = () => {
       player.duck();
     }
 
-    if ((e.key === "r" || e.key === "R" || e.key === "Enter" || e.key === "Escape" || e.key === " ") && gameOff) {
+    if (gameOff) {
       // Reset game
       gameOff = false;
 

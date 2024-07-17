@@ -14,7 +14,7 @@ class Player {
     this.isDucking = false;
     this.frame = 0;
     this.frameCount = 0; // Counter for controlling animation speed
-    this.frameRate = 10; // Change frame every 5 ticks
+    this.frameRate = 20; // Change frame every 5 ticks
   }
 
   drawInitial(ctx) {
