@@ -90,7 +90,6 @@ class Player {
 
     this.y = 326;
     this.spriteWidth = 120;
-    this.spriteHeight = 92;
     this.spriteBeginX = 1862;
     this.spriteLastX = 1980;
   }

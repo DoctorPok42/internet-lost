@@ -46,22 +46,32 @@ sprite.onload = () => {
     obstacles.push(new Obstacle(800, obstacleY, sprite, obstacleType));
   }
 
+  let gameOff = false;
+
   setInterval(() => {
     scene.clear();
     scene.drawBackground();
-    player.update(container);
-    player.move(ctx);
+    if (gameOff) {
+      // Display game over message
+      ctx.drawImage(
+        sprite, 950, 25, 390, 70, 220, 150, 350, 70
+      );
+    } else {
+      player.update(container);
+      player.move(ctx);
+    }
     scene.moveGround();
 
     obstacles.forEach((obstacle, index) => {
-      obstacle.update();
-      obstacle.draw(ctx);
+      if (!gameOff) {
+        // Update and draw obstacles
+        obstacle.update();
+        obstacle.draw(ctx);
+      }
 
       if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
+        gameOff = true;
         container.style.transform = "translateY(0) !important";
-        alert("Game Over!");
-        window.location.reload();
-        obstacles = [];
       }
 
       if (obstacle.x < -obstacle.spriteWidth) {
@@ -87,6 +97,21 @@ sprite.onload = () => {
       player.isDucking = true;
       player.duck();
     }
+
+    if ((e.key === "r" || e.key === "R" || e.key === "Enter" || e.key === "Escape" || e.key === " ") && gameOff) {
+      // Reset game
+      gameOff = false;
+
+      player.x = 25;
+      player.y = 288;
+      player.isJumping = false;
+      player.isDucking = false;
+      player.spriteWidth = 88;
+      player.spriteBeginX = 1514;
+      player.spriteLastX = 1602;
+
+      obstacles = [];
+    }
   });
 
   window.addEventListener("keyup", (e) => {
@@ -94,7 +119,6 @@ sprite.onload = () => {
       player.isDucking = false;
       player.y = 288;
       player.spriteWidth = 88;
-      player.spriteHeight = 92;
       player.spriteBeginX = 1514;
       player.spriteLastX = 1602;
     }
