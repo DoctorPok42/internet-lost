@@ -64,7 +64,7 @@ class Player {
     }
   }
 
-  update(container) {
+  update() {
     if (this.isJumping) {
       if (this.isDucking) {
         this.jumpSpeed += (this.gravity + 0.05);
@@ -74,13 +74,10 @@ class Player {
 
       this.y += this.jumpSpeed;
 
-      container.style.transform = `translateY(${this.y - 288}px)`;
-
       if (this.y >= 288) { // Ground level
         this.y = 288;
         this.isJumping = false;
         this.jumpSpeed = 0;
-        container.style.transform = "translateY(0)";
       }
     }
   }

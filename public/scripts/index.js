@@ -11,6 +11,16 @@ function isColliding(rect1, rect2) {
   );
 }
 
+let isPaused = false;
+
+function pauseGame(duration, callback) {
+  isPaused = true;
+  setTimeout(() => {
+    isPaused = false;
+    if (callback) callback();
+  }, duration);
+}
+
 sprite.onload = () => {
   // Initialize canvas
   const container = document.getElementById("container");
@@ -49,6 +59,8 @@ sprite.onload = () => {
   let gameOff = false;
 
   setInterval(() => {
+    if (isPaused) return;
+
     scene.clear();
     scene.drawBackground();
     if (gameOff) {
@@ -56,8 +68,11 @@ sprite.onload = () => {
       ctx.drawImage(
         sprite, 950, 25, 390, 70, 220, 150, 350, 70
       );
+      player.x = 340;
+      player.y = 240;
+      player.drawInitial(ctx);
     } else {
-      player.update(container);
+      player.update();
       player.move(ctx);
     }
     scene.moveGround();
@@ -70,8 +85,10 @@ sprite.onload = () => {
       }
 
       if (isColliding(player.getHitbox(), obstacle.getHitbox())) {
-        gameOff = true;
-        container.style.transform = "translateY(0) !important";
+        // sleep for 100ms before pausing the game
+        pauseGame(100, () => {
+          gameOff = true;
+        });
       }
 
       if (obstacle.x < -obstacle.spriteWidth) {
@@ -90,7 +107,6 @@ sprite.onload = () => {
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" || e.key === " ") {
       player.jump();
-      container.style.transform = "translateY(-1px)";
     }
 
     if (e.key === "ArrowDown") {
@@ -126,6 +142,5 @@ sprite.onload = () => {
 
   window.addEventListener("touchstart", (e) => {
     player.jump();
-    container.style.transform = "translateY(-1px)";
   });
 }
