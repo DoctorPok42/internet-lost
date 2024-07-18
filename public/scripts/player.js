@@ -9,12 +9,13 @@ class Player {
     this.spriteBeginX = 1514;
     this.spriteLastX = 1602;
     this.jumpSpeed = 0;
-    this.gravity = 0.4;
+    this.gravity = 0.3;
     this.isJumping = false;
     this.isDucking = false;
     this.frame = 0;
     this.frameCount = 0; // Counter for controlling animation speed
     this.frameRate = 20; // Change frame every 5 ticks
+    this.smoothFactor = 0.995;
   }
 
   drawInitial(ctx) {
@@ -60,18 +61,17 @@ class Player {
   jump() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.jumpSpeed = -17;
+      this.jumpSpeed = -15;
     }
   }
 
   update() {
     if (this.isJumping) {
-      if (this.isDucking) {
-        this.jumpSpeed += (this.gravity + 0.05);
-      } else {
-        this.jumpSpeed += this.gravity;
+      if (this.jumpSpeed < 0) {
+        this.jumpSpeed *= this.smoothFactor;
       }
 
+      this.jumpSpeed += this.gravity;
       this.y += this.jumpSpeed;
 
       if (this.y >= 288) { // Ground level
