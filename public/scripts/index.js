@@ -43,6 +43,12 @@ sprite.onload = () => {
   // Create obstacles
   let obstacles = [];
 
+  let score = new Score(sprite, ctx);
+
+  let hightScore = localStorage.getItem("highScore") || 0;
+
+  score.setHighScore(hightScore);
+
   function generateObstacle() {
     const obstacleTypes = {
       "cactusSmall": 311,
@@ -96,6 +102,10 @@ sprite.onload = () => {
         // sleep for 100ms before pausing the game
         pauseGame(100, () => {
           gameOff = true;
+
+          if (score.score > score.highScore) {
+            localStorage.setItem("highScore", score.score);
+          }
         });
       }
 
@@ -104,6 +114,12 @@ sprite.onload = () => {
       }
     });
     scene.drawLine();
+
+    if (!gameOff) {
+      score.update();
+    }
+    score.drawHighScore();
+    score.draw();
   }, 400 / 60);
 
   // Generate obstacles periodically
@@ -135,6 +151,9 @@ sprite.onload = () => {
       player.spriteLastX = 1602;
 
       obstacles = [];
+
+      score.score = 0;
+      score.highScore = localStorage.getItem("highScore") || 0;
     }
   });
 
