@@ -9,6 +9,7 @@ const Home = () => {
         <Script src="/scripts/player.js" />
         <Script src="/scripts/obstacle.js" />
         <Script src="/scripts/scene.js" />
+        <Script src="/scripts/score.js" />
         <Script src="/scripts/index.js" />
       </div>
     </main>
