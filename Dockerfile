@@ -5,7 +5,7 @@ WORKDIR /app
 COPY pnpm-lock.yaml ./
 COPY package*.json ./
 
-RUN npx pnpm install
+RUN npm install
 
 COPY src/ ./src/
 COPY public ./public/
@@ -14,8 +14,8 @@ COPY next.config.mjs .
 COPY tailwind.config.ts .
 COPY postcss.config.mjs .
 
-RUN npx pnpm build
+RUN npm run build
 
 EXPOSE 6550
 
-CMD ["npx", "pnpm", "start"]
+CMD ["npm", "run", "start"]
