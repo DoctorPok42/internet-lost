@@ -45,9 +45,9 @@ jobs:
 
     steps:
       - run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker tag internet_lost:latest ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
-          docker push ${{ secrets.DOCKER_USERNAME }}/whatsup:internet_lost
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          docker tag internet_lost:latest ${{ secrets.DOCKERHUB_USERNAME }}/whatsup:internet_lost
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/whatsup:internet_lost
 
   deploy:
     name: 🚀 Deploy to VPS
@@ -58,11 +58,11 @@ jobs:
     steps:
       - uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ${{ secrets.VPS_PROJECT_PATH }}
+            cd ${{ secrets.SERVER_APP_DIR }}
             sudo cp -f docker-compose.yml ./
             sudo docker compose -f docker-compose.yml up -d
             sudo docker container restart internet_lost
